@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXPEN-03: Chi tiết Mô hình hóa Nguồn Mối đe dọa (NIST 800-30)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f4f7f6; margin: 0; padding: 40px; }
+        .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 40px 50px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #DE2A3E; }
+        .header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
+        .header h1 { color: #DE2A3E; margin: 0 0 10px 0; font-size: 32px; text-transform: uppercase; }
+        .header p { color: #666; font-size: 16px; margin: 0; }
+        h2 { color: #2c3e50; border-left: 4px solid #DE2A3E; padding-left: 10px; margin-top: 40px; font-size: 22px; text-transform: uppercase; background-color: #f8f9fa; padding: 10px 10px 10px 15px; }
+        h3 { color: #DE2A3E; font-size: 18px; margin-top: 25px; }
+        p { margin-bottom: 15px; font-size: 15px; }
+        ul { margin-bottom: 20px; }
+        li { margin-bottom: 8px; font-size: 15px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+        th, td { padding: 12px 15px; border: 1px solid #ddd; text-align: left; vertical-align: top; }
+        th { background-color: #2c3e50; color: #ffffff; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; display: inline-block; margin-bottom: 5px; }
+        .badge.very-high { background-color: #8b0000; }
+        .badge.high { background-color: #DE2A3E; }
+        .badge.moderate { background-color: #f39c12; }
+        .badge.low { background-color: #3498db; }
+        .badge.very-low { background-color: #95a5a6; }
+        .notes { background-color: #e8f4f8; border-left: 4px solid #3498db; padding: 20px; margin: 20px 0; font-size: 15px; color: #2c3e50; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Phân tích Nguồn Mối đe dọa theo NIST 800-30</h1>
+        <p><strong>Tài liệu Đào tạo & Tham chiếu cho PIXPEN-03</strong></p>
+    </div>
+
+    <div class="notes">
+        <strong>Tổng quan:</strong> Phụ lục D của tiêu chuẩn NIST SP 800-30 cung cấp một hệ thống phân loại và đo lường định lượng/định tính để xác định chính xác ai (hoặc cái gì) có thể tấn công hệ thống của bạn. Việc hiểu rõ các bảng từ D-1 đến D-6 là tiền đề bắt buộc trước khi điền dữ liệu vào các biểu mẫu báo cáo D-7 và D-8.
+    </div>
+
+    <h2>PHẦN 1: GIẢI THÍCH LÝ THUYẾT NỀN TẢNG (BẢNG D-1 ĐẾN D-6)</h2>
+
+    <h3>1. Bảng D-1: Đầu vào cho việc Nhận diện (Inputs - Threat Source Identification)</h3>
+    <p>Bảng này xác định thông tin về các mối đe dọa được thu thập từ đâu trong tổ chức. NIST chia làm 3 cấp độ (Tiers):</p>
+    <ul>
+        <li><strong>Tier 1 (Cấp độ Tổ chức):</strong> Các báo cáo tình báo, chính sách quản trị, rủi ro từ đối tác chiến lược.</li>
+        <li><strong>Tier 2 (Cấp độ Quy trình Kinh doanh/Nhiệm vụ):</strong> Rủi ro liên quan đến quy trình làm việc, kiến trúc doanh nghiệp (EA), hạ tầng dùng chung.</li>
+        <li><strong>Tier 3 (Cấp độ Hệ thống Thông tin):</strong> Rủi ro trực tiếp liên quan đến công nghệ, thành phần hệ thống, ứng dụng, và môi trường mạng.</li>
+    </ul>
+
+    <h3>2. Bảng D-2: Phân loại Nguồn Mối đe dọa (Taxonomy of Threat Sources)</h3>
+    <p>NIST chia nguồn rủi ro thành 4 nhóm chính, giúp chúng ta không bỏ sót bất kỳ nguy cơ nào:</p>
+    <ul>
+        <li><strong>Có chủ đích (Adversarial):</strong> Cá nhân, nhóm, tổ chức hoặc quốc gia cố tình khai thác điểm yếu mạng. Đặc trưng đánh giá bằng: Năng lực (Capability), Ý định (Intent) và Mục tiêu (Targeting).</li>
+        <li><strong>Vô tình (Accidental):</strong> Lỗi do thao tác sai của người dùng hoặc quản trị viên trong quá trình làm việc. Đặc trưng đánh giá: Phạm vi ảnh hưởng (Range of effects).</li>
+        <li><strong>Cấu trúc (Structural):</strong> Sự cố từ thiết bị CNTT (Lưu trữ, Xử lý...), kiểm soát môi trường (Nhiệt độ, Nguồn điện) hoặc phần mềm do hao mòn, quá tải. Đặc trưng đánh giá: Phạm vi ảnh hưởng (Range of effects).</li>
+        <li><strong>Môi trường (Environmental):</strong> Thảm họa thiên nhiên (Động đất, Lũ lụt) hoặc sự cố hạ tầng điện/viễn thông. Đặc trưng đánh giá: Phạm vi ảnh hưởng (Range of effects).</li>
+    </ul>
+
+    <h3>3. Bảng D-3, D-4, D-5: Thang đo cho Nhóm Có chủ đích (Adversarial)</h3>
+    <p>Đây là 3 thước đo dùng để đánh giá mức độ nguy hiểm của một kẻ tấn công (Hacker/APT):</p>
+    <ul>
+        <li><strong>Bảng D-3 (Năng lực - Capability):</strong> Đánh giá mức độ chuyên môn và nguồn lực. <em>Ví dụ:</em> Kẻ thù "Rất cao" (Very High) có thể tạo ra các cơ hội để thực hiện nhiều cuộc tấn công liên tục, phối hợp và tinh vi. Kẻ thù "Rất thấp" (Very Low) chỉ có nguồn lực hạn chế.</li>
+        <li><strong>Bảng D-4 (Ý định - Intent):</strong> Đánh giá dã tâm của kẻ tấn công. <em>Ví dụ:</em> Ý định "Rất cao" là muốn phá hủy, làm suy yếu nghiêm trọng tổ chức và không quan tâm đến việc bị lộ danh tính trừ khi nó cản trở mục tiêu. Ý định "Trung bình" (Moderate) là tìm cách thiết lập chỗ đứng (foothold) để đánh cắp/sửa đổi dữ liệu nhạy cảm theo thời gian dài.</li>
+        <li><strong>Bảng D-5 (Mục tiêu - Targeting):</strong> Đánh giá mức độ nhắm mục tiêu. <em>Ví dụ:</em> "Rất cao" là liên tục nhắm vào cụ thể tổ chức của bạn, nhân viên cụ thể, chuỗi cung ứng cụ thể. "Rất thấp" là không nhắm cụ thể vào ai, gặp ai lỗi thì hack.</li>
+    </ul>
+
+    <h3>4. Bảng D-6: Thang đo cho Nhóm Không chủ đích (Non-Adversarial)</h3>
+    <p>Đối với sự cố vô tình, thiết bị hỏng hoặc thiên tai, ta không đo bằng "Ý định", mà đo bằng <strong>Phạm vi ảnh hưởng (Range of Effects)</strong>.</p>
+    <ul>
+        <li><strong>Very High (Rất cao):</strong> Hậu quả sâu rộng (sweeping), ảnh hưởng đến gần như toàn bộ tài nguyên mạng/hệ thống.</li>
+        <li><strong>Moderate (Trung bình):</strong> Hậu quả trên diện rộng (wide-ranging), ảnh hưởng đến một phần đáng kể tài nguyên, bao gồm một số tài nguyên quan trọng.</li>
+        <li><strong>Very Low (Rất thấp):</strong> Hậu quả tối thiểu (minimal), không liên quan đến tài nguyên quan trọng nào.</li>
+    </ul>
+
+    <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ccc;">
+
+    <h2>PHẦN 2: BẢNG D-7 - VÍ DỤ NHẬN DIỆN MỐI ĐE DỌA CÓ CHỦ ĐÍCH (ADVERSARIAL)</h2>
+    <p>Bảng tổng hợp này là đầu ra (Output) áp dụng trực tiếp các chỉ số từ Bảng D-2 đến D-5 cho dự án thực tế.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="10%">Mã định danh (Identifier)</th>
+                <th width="25%">Nguồn Mối đe dọa (Từ Bảng D-2)</th>
+                <th width="5%">In Scope</th>
+                <th width="20%">Năng lực (Capability - D-3)</th>
+                <th width="20%">Ý định (Intent - D-4)</th>
+                <th width="20%">Mục tiêu (Targeting - D-5)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>ADV-01</strong></td>
+                <td><strong>Nhóm - Có tổ chức (Group - Established)</strong><br><br>Nhóm tội phạm mạng có tổ chức (APT) tập trung vào việc vượt qua cơ chế phòng thủ (Bypass EDR/Antivirus) để trích xuất dữ liệu nhạy cảm (Sensitive data extraction) từ hệ thống cốt lõi.</td>
+                <td>Yes</td>
+                <td>
+                    <span class="badge very-high">Very High (96-100)</span><br>
+                    Chuyên môn cực kỳ tinh vi, có khả năng tạo ra các phương thức tấn công zero-day, qua mặt các hệ thống giám sát EDR hiện đại.
+                </td>
+                <td>
+                    <span class="badge high">High (80-95)</span><br>
+                    Tìm cách duy trì sự hiện diện (foothold) lâu dài trong hệ thống để trích xuất dữ liệu. Rất quan tâm đến việc giảm thiểu rủi ro bị phát hiện.
+                </td>
+                <td>
+                    <span class="badge very-high">Very High (96-100)</span><br>
+                    Phân tích tình báo để nhắm mục tiêu dai dẳng vào dữ liệu nhạy cảm và các nhân sự có quyền truy cập cấp cao tại tổ chức.
+                </td>
+            </tr>
+            <tr>
+                <td><strong>ADV-02</strong></td>
+                <td><strong>Cá nhân - Người nội bộ đặc quyền (Individual - Privileged Insider)</strong><br><br>Quản trị viên mạng nội bộ bất mãn, có ý định phá hoại hoặc đánh cắp cơ sở dữ liệu khách hàng.</td>
+                <td>Yes</td>
+                <td>
+                    <span class="badge moderate">Moderate (21-79)</span><br>
+                    Có chuyên môn và tài nguyên ở mức khá, nhưng lợi thế lớn nhất là cơ hội (đã có sẵn quyền truy cập) để thực hiện cuộc tấn công.
+                </td>
+                <td>
+                    <span class="badge high">High (80-95)</span><br>
+                    Muốn làm suy yếu hoặc cản trở các chức năng cốt lõi của doanh nghiệp.
+                </td>
+                <td>
+                    <span class="badge high">High (80-95)</span><br>
+                    Nhắm trực tiếp vào tổ chức cụ thể dựa trên kiến thức nội bộ về các quy trình và lỗ hổng.
+                </td>
+            </tr>
+            <tr>
+                <td><strong>ADV-03</strong></td>
+                <td><strong>Cá nhân - Người ngoài (Individual - Outsider)</strong><br><br>Nhóm Script Kiddies sử dụng các công cụ quét tự động (như Acunetix, SQLMap) để tìm kiếm lỗi Web ứng dụng phổ biến.</td>
+                <td>Yes</td>
+                <td>
+                    <span class="badge low">Low (5-20)</span><br>
+                    Nguồn lực và chuyên môn hạn chế, phụ thuộc hoàn toàn vào các bộ công cụ có sẵn.
+                </td>
+                <td>
+                    <span class="badge low">Low (5-20)</span><br>
+                    Tích cực tìm kiếm thông tin nhạy cảm nhưng thao tác rất ồn ào, không quan tâm đến việc bị Firewall/IPS phát hiện.
+                </td>
+                <td>
+                    <span class="badge low">Low (5-20)</span><br>
+                    Sử dụng thông tin công khai (shodan, google dork) để tìm kiếm mục tiêu cơ hội (targets of opportunity) trên diện rộng.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>PHẦN 3: BẢNG D-8 - VÍ DỤ NHẬN DIỆN MỐI ĐE DỌA KHÔNG CHỦ ĐÍCH (NON-ADVERSARIAL)</h2>
+    <p>Áp dụng Phạm vi ảnh hưởng (Bảng D-6) cho các lỗi do môi trường, hệ thống hoặc con người vô ý.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="15%">Mã định danh (Identifier)</th>
+                <th width="45%">Nguồn Mối đe dọa (Từ Bảng D-2)</th>
+                <th width="10%">In Scope</th>
+                <th width="30%">Phạm vi ảnh hưởng (Range of Effects - D-6)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>NADV-01</strong></td>
+                <td><strong>Vô tình - Người dùng (Accidental - User)</strong><br><br>Nhân viên vô tình gửi email chứa file cấu hình nhạy cảm ra bên ngoài tổ chức do nhầm lẫn địa chỉ email.</td>
+                <td>Yes</td>
+                <td>
+                    <span class="badge low">Low (5-20)</span><br>
+                    Hậu quả của tai nạn này bị giới hạn (limited), liên quan đến một lượng nhỏ dữ liệu không bao gồm toàn bộ tài nguyên mang tính sống còn của hệ thống.
+                </td>
+            </tr>
+            <tr>
+                <td><strong>NADV-02</strong></td>
+                <td><strong>Cấu trúc - CNTT - Lưu trữ (Structural - IT Equipment - Storage)</strong><br><br>Cụm ổ cứng lưu trữ Database của ứng dụng Web bị hỏng đột ngột do cạn kiệt tài nguyên (Resource depletion) dẫn đến mất mát dữ liệu chưa backup kịp.</td>
+                <td>Yes</td>
+                <td>
+                    <span class="badge high">High (80-95)</span><br>
+                    Hậu quả của sự cố thiết bị là trên diện rộng (extensive), ảnh hưởng đến hầu hết tài nguyên của hệ thống thông tin, bao gồm cả các tài nguyên quan trọng nhất (Cơ sở dữ liệu).
+                </td>
+            </tr>
+            <tr>
+                <td><strong>NADV-03</strong></td>
+                <td><strong>Môi trường - Sự cố Hạ tầng - Điện (Environmental - Infrastructure Outage - Electrical Power)</strong><br><br>Sự cố mất điện toàn cục tại Data Center gây sập toàn bộ dịch vụ ứng dụng Web và API nội bộ.</td>
+                <td>Yes</td>
+                <td>
+                    <span class="badge very-high">Very High (96-100)</span><br>
+                    Hậu quả mang tính càn quét (sweeping), bao trùm gần như 100% tài nguyên mạng và hệ thống ứng dụng, khiến doanh nghiệp tê liệt hoàn toàn.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
