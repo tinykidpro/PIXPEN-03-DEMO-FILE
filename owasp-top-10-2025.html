@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>OWASP Top 10 2021 to 2025</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    padding:35px;
+    font-family:Arial,Helvetica,sans-serif;
+    background:linear-gradient(135deg,#eef2ff,#f8fafc);
+    color:#1e293b;
+}
+
+.container{
+    max-width:1450px;
+    margin:auto;
+    background:#fff;
+    border-radius:24px;
+    padding:36px;
+    box-shadow:0 24px 60px rgba(15,23,42,.14);
+}
+
+h1{
+    text-align:center;
+    margin:0;
+    font-size:36px;
+    color:#0f172a;
+}
+
+.subtitle{
+    text-align:center;
+    margin:12px 0 36px;
+    color:#64748b;
+    font-size:16px;
+}
+
+.mapping{
+    display:grid;
+    grid-template-columns:1fr 230px 1fr;
+    gap:18px;
+    align-items:start;
+}
+
+.year{
+    text-align:center;
+    font-size:28px;
+    font-weight:800;
+    margin-bottom:15px;
+    color:#0f172a;
+}
+
+.column{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.item{
+    height:48px;
+    display:flex;
+    align-items:center;
+    padding:8px 14px;
+    border-radius:11px;
+    font-size:15px;
+    font-weight:700;
+    border-left:6px solid transparent;
+    box-shadow:0 4px 12px rgba(15,23,42,.07);
+    white-space:nowrap;
+}
+
+.stable{
+    background:#dcfce7;
+    border-left-color:#22c55e;
+    color:#166534;
+}
+
+.moved{
+    background:#ffedd5;
+    border-left-color:#f97316;
+    color:#9a3412;
+}
+
+.new{
+    background:#dbeafe;
+    border-left-color:#2563eb;
+    color:#1e40af;
+}
+
+.removed{
+    background:#fef3c7;
+    border-left-color:#f59e0b;
+    color:#92400e;
+}
+
+.line-area{
+    position:relative;
+    height:600px;
+    margin-top:43px;
+}
+
+#connectorSvg{
+    width:100%;
+    height:100%;
+    overflow:visible;
+}
+
+.new-label{
+    position:absolute;
+    z-index:5;
+    font-weight:800;
+    color:#3f6212;
+    background:#ecfccb;
+    border:1px solid #bef264;
+    padding:5px 12px;
+    border-radius:999px;
+    font-size:14px;
+    box-shadow:0 3px 8px rgba(0,0,0,.08);
+}
+
+.new-label.top{
+    top:88px;
+    left:82px;
+}
+
+.new-label.bottom{
+    top:512px;
+    left:82px;
+}
+
+.legend{
+    display:flex;
+    justify-content:center;
+    gap:22px;
+    margin-top:35px;
+    flex-wrap:wrap;
+    font-size:14px;
+    color:#334155;
+}
+
+.legend span{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+}
+
+.dot{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    display:inline-block;
+}
+
+.green{background:#22c55e}
+.orange{background:#f97316}
+.blue{background:#2563eb}
+.yellow{background:#facc15}
+
+.note{
+    margin-top:18px;
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+}
+
+.intro{
+    margin-top:45px;
+    padding:24px 28px;
+    border-radius:18px;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    line-height:1.7;
+    color:#334155;
+}
+
+.intro h2{
+    margin-top:0;
+    color:#0f172a;
+}
+
+.owasp-details{
+    margin-top:28px;
+}
+
+.owasp-details h2{
+    font-size:26px;
+    color:#0f172a;
+    margin-bottom:18px;
+}
+
+details{
+    background:#fff;
+    margin-bottom:14px;
+    border-radius:14px;
+    border:1px solid #dbeafe;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(15,23,42,.06);
+}
+
+summary{
+    cursor:pointer;
+    padding:17px 22px;
+    font-size:18px;
+    font-weight:800;
+    color:#1e40af;
+    background:linear-gradient(90deg,#eff6ff,#f8fafc);
+}
+
+summary:hover{
+    background:#dbeafe;
+}
+
+.detail-body{
+    padding:20px 24px;
+    line-height:1.75;
+    color:#334155;
+    border-top:1px solid #e2e8f0;
+}
+
+.detail-body p{
+    margin:0 0 12px;
+}
+
+.detail-body ul{
+    margin:8px 0 0 22px;
+    padding:0;
+}
+
+.detail-body li{
+    margin-bottom:6px;
+}
+
+.badge{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:10px;
+    background:#eef2ff;
+    color:#3730a3;
+}
+
+@media(max-width:1100px){
+    body{padding:18px}
+    .container{padding:22px;overflow-x:auto}
+    .mapping{min-width:1050px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>OWASP Top 10: 2021 → 2025 Make by Hoai Thuong</h1>
+    <div class="subtitle">
+        So sánh sự thay đổi các nhóm rủi ro bảo mật ứng dụng Web giữa OWASP Top 10 2021 và OWASP Top 10 2025
+    </div>
+
+    <div class="mapping">
+
+        <div>
+            <div class="year">2021</div>
+            <div class="column">
+                <div id="a01_2021" class="item stable">A01:2021 - Broken Access Control</div>
+                <div id="a02_2021" class="item moved">A02:2021 - Cryptographic Failures</div>
+                <div id="a03_2021" class="item moved">A03:2021 - Injection</div>
+                <div id="a04_2021" class="item moved">A04:2021 - Insecure Design</div>
+                <div id="a05_2021" class="item stable">A05:2021 - Security Misconfiguration</div>
+                <div id="a06_2021" class="item stable">A06:2021 - Vulnerable and Outdated Components</div>
+                <div id="a07_2021" class="item stable">A07:2021 - Identification and Authentication Failures</div>
+                <div id="a08_2021" class="item stable">A08:2021 - Software and Data Integrity Failures</div>
+                <div id="a09_2021" class="item stable">A09:2021 - Security Logging and Monitoring Failures*</div>
+                <div id="a10_2021" class="item removed">A10:2021 - Server-Side Request Forgery (SSRF)*</div>
+            </div>
+        </div>
+
+        <div class="line-area">
+            <span class="new-label top">New</span>
+            <span class="new-label bottom">New</span>
+            <svg id="connectorSvg"></svg>
+        </div>
+
+        <div>
+            <div class="year">2025</div>
+            <div class="column">
+                <div id="a01_2025" class="item stable">A01:2025 - Broken Access Control</div>
+                <div id="a02_2025" class="item stable">A02:2025 - Security Misconfiguration</div>
+                <div id="a03_2025" class="item new">A03:2025 - Software Supply Chain Failures*</div>
+                <div id="a04_2025" class="item moved">A04:2025 - Cryptographic Failures</div>
+                <div id="a05_2025" class="item moved">A05:2025 - Injection</div>
+                <div id="a06_2025" class="item moved">A06:2025 - Insecure Design</div>
+                <div id="a07_2025" class="item stable">A07:2025 - Authentication Failures</div>
+                <div id="a08_2025" class="item stable">A08:2025 - Software or Data Integrity Failures</div>
+                <div id="a09_2025" class="item stable">A09:2025 - Security Logging & Alerting Failures*</div>
+                <div id="a10_2025" class="item new">A10:2025 - Mishandling of Exceptional Conditions</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="legend">
+        <span><i class="dot green"></i> Giữ nguyên / tiếp tục tồn tại</span>
+        <span><i class="dot orange"></i> Thay đổi vị trí</span>
+        <span><i class="dot blue"></i> Nhóm rủi ro mới</span>
+        <span><i class="dot yellow"></i> Hợp nhất / điều chỉnh từ dữ liệu cộng đồng</span>
+    </div>
+
+    <div class="note">
+        * From the Survey — Các mục có dấu * được hình thành hoặc điều chỉnh dựa trên dữ liệu khảo sát cộng đồng.
+    </div>
+
+    <div class="intro">
+        <h2>Tổng quan thay đổi OWASP Top 10 2025</h2>
+        OWASP Top 10 thường được cập nhật định kỳ khoảng ba năm một lần nhằm phản ánh những thay đổi trong bối cảnh an toàn thông tin và các xu hướng tấn công mới. Phiên bản năm 2021 bị trì hoãn một năm và được công bố chính thức vào tháng 09/2021. Đến năm 2025, OWASP tiếp tục cập nhật danh sách nhằm phản ánh các rủi ro mới phát sinh trong quá trình phát triển, tích hợp, triển khai và vận hành phần mềm hiện đại.
+        <br><br>
+        Trong phiên bản OWASP Top 10 năm 2025, có hai nhóm rủi ro mới được bổ sung và một số hạng mục được hợp nhất hoặc mở rộng phạm vi. OWASP tiếp tục duy trì định hướng tập trung vào nguyên nhân gốc rễ của vấn đề bảo mật thay vì chỉ mô tả các biểu hiện bên ngoài của lỗ hổng.
+    </div>
+
+    <div class="owasp-details">
+        <h2>Ghi chú chi tiết từng nhóm rủi ro OWASP Top 10 2025</h2>
+
+        <details open>
+            <summary>A01:2025 - Broken Access Control</summary>
+            <div class="detail-body">
+                <span class="badge">Giữ vị trí #1</span>
+                <p>A01:2025 - Broken Access Control tiếp tục giữ vị trí số 1 và là nhóm rủi ro nghiêm trọng nhất trong OWASP Top 10.</p>
+                <p>Dữ liệu thống kê cho thấy trung bình khoảng 3,73% ứng dụng được kiểm thử tồn tại ít nhất một trong 40 điểm yếu CWE thuộc nhóm này.</p>
+                <p>So với phiên bản trước, Server-Side Request Forgery (SSRF) đã được hợp nhất vào nhóm Broken Access Control do có liên quan đến việc truy cập trái phép tài nguyên hoặc chức năng ngoài phạm vi được phép.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A02:2025 - Security Misconfiguration</summary>
+            <div class="detail-body">
+                <span class="badge">Tăng từ #5 lên #2</span>
+                <p>A02:2025 - Security Misconfiguration tăng từ vị trí thứ 5 năm 2021 lên vị trí thứ 2 năm 2025.</p>
+                <p>Khoảng 3,00% ứng dụng được kiểm thử tồn tại ít nhất một trong 16 CWE thuộc nhóm này.</p>
+                <p>Sự gia tăng này phản ánh thực tế rằng ngày càng nhiều hành vi của ứng dụng được điều khiển thông qua cấu hình, hạ tầng Cloud, Container, DevOps và CI/CD. Khi cấu hình sai, hệ thống có thể bị lộ dữ liệu, mở dịch vụ không cần thiết hoặc vô tình làm suy yếu cơ chế bảo mật.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A03:2025 - Software Supply Chain Failures</summary>
+            <div class="detail-body">
+                <span class="badge">Nhóm rủi ro mới năm 2025</span>
+                <p>A03:2025 - Software Supply Chain Failures là nhóm rủi ro mới trong OWASP Top 10 năm 2025.</p>
+                <p>Nhóm này được mở rộng từ A06:2021 - Vulnerable and Outdated Components, không chỉ tập trung vào thư viện lỗi thời mà còn bao quát toàn bộ chuỗi cung ứng phần mềm.</p>
+                <ul>
+                    <li>Thư viện phụ thuộc và package bên thứ ba.</li>
+                    <li>Build Pipeline và hệ thống CI/CD.</li>
+                    <li>Kho mã nguồn, package repository và artifact registry.</li>
+                    <li>Hạ tầng phân phối, ký số và phát hành phần mềm.</li>
+                </ul>
+                <p>Đây là nhóm được cộng đồng bảo mật đánh giá là mối quan tâm lớn, đặc biệt trong bối cảnh các cuộc tấn công chuỗi cung ứng phần mềm ngày càng phổ biến.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A04:2025 - Cryptographic Failures</summary>
+            <div class="detail-body">
+                <span class="badge">Giảm từ #2 xuống #4</span>
+                <p>A04:2025 - Cryptographic Failures giảm hai bậc, từ vị trí thứ 2 xuống vị trí thứ 4.</p>
+                <p>Dữ liệu cho thấy trung bình khoảng 3,80% ứng dụng tồn tại ít nhất một trong 32 CWE thuộc nhóm này.</p>
+                <p>Các lỗi mật mã thường dẫn đến rò rỉ dữ liệu nhạy cảm hoặc làm ảnh hưởng toàn bộ hệ thống, ví dụ như dùng thuật toán mã hóa yếu, quản lý khóa không an toàn, truyền dữ liệu nhạy cảm không mã hóa hoặc triển khai sai cơ chế bảo vệ dữ liệu.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A05:2025 - Injection</summary>
+            <div class="detail-body">
+                <span class="badge">Giảm từ #3 xuống #5</span>
+                <p>A05:2025 - Injection giảm từ vị trí thứ 3 xuống vị trí thứ 5 nhưng vẫn là một trong những nhóm lỗ hổng được kiểm thử nhiều nhất trong Pentest Web Application.</p>
+                <p>Nhóm này bao gồm nhiều dạng lỗi phổ biến như:</p>
+                <ul>
+                    <li>SQL Injection.</li>
+                    <li>Command Injection.</li>
+                    <li>LDAP Injection.</li>
+                    <li>NoSQL Injection.</li>
+                    <li>Cross-Site Scripting (XSS).</li>
+                </ul>
+                <p>Trong đó, XSS thường có tần suất xuất hiện cao nhưng mức độ tác động có thể thấp hơn, còn SQL Injection tuy ít gặp hơn nhưng thường có mức độ ảnh hưởng nghiêm trọng hơn khi khai thác thành công.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A06:2025 - Insecure Design</summary>
+            <div class="detail-body">
+                <span class="badge">Giảm từ #4 xuống #6</span>
+                <p>A06:2025 - Insecure Design giảm từ vị trí thứ 4 xuống vị trí thứ 6.</p>
+                <p>Nhóm này tập trung vào các vấn đề bảo mật phát sinh từ giai đoạn thiết kế hệ thống thay vì lỗi lập trình đơn lẻ.</p>
+                <p>Những năm gần đây, việc áp dụng Threat Modeling, Secure Design và các quy trình phát triển phần mềm an toàn đã được chú trọng hơn, góp phần làm giảm mức độ phổ biến của nhóm rủi ro này.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A07:2025 - Authentication Failures</summary>
+            <div class="detail-body">
+                <span class="badge">Giữ vị trí #7</span>
+                <p>A07:2025 - Authentication Failures tiếp tục giữ vị trí thứ 7.</p>
+                <p>Tên gọi được rút gọn từ “Identification and Authentication Failures” thành “Authentication Failures” nhằm phản ánh chính xác hơn phạm vi của các CWE trong nhóm này.</p>
+                <p>Nhóm này vẫn rất quan trọng trong kiểm thử bảo mật ứng dụng Web. Tuy nhiên, việc sử dụng rộng rãi các framework xác thực chuẩn như OAuth, OpenID Connect, SAML hoặc các nền tảng quản lý định danh hiện đại đã giúp giảm phần nào tần suất xuất hiện của lỗi xác thực.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A08:2025 - Software or Data Integrity Failures</summary>
+            <div class="detail-body">
+                <span class="badge">Giữ vị trí #8</span>
+                <p>A08:2025 - Software or Data Integrity Failures tiếp tục giữ vị trí thứ 8.</p>
+                <p>Nhóm này tập trung vào việc hệ thống không duy trì đúng ranh giới tin cậy hoặc không xác minh tính toàn vẹn của phần mềm, mã nguồn và dữ liệu.</p>
+                <ul>
+                    <li>Không kiểm tra chữ ký số của bản cập nhật.</li>
+                    <li>Tải mã hoặc dữ liệu từ nguồn không đáng tin cậy.</li>
+                    <li>Không xác minh integrity của artifact trong quá trình build hoặc deploy.</li>
+                    <li>Thiếu kiểm soát đối với dữ liệu quan trọng trong hệ thống.</li>
+                </ul>
+            </div>
+        </details>
+
+        <details>
+            <summary>A09:2025 - Security Logging & Alerting Failures</summary>
+            <div class="detail-body">
+                <span class="badge">Giữ vị trí #9</span>
+                <p>A09:2025 - Security Logging & Alerting Failures tiếp tục giữ vị trí thứ 9.</p>
+                <p>Tên gọi được điều chỉnh từ “Security Logging and Monitoring Failures” thành “Security Logging & Alerting Failures” để nhấn mạnh vai trò của cơ chế cảnh báo.</p>
+                <p>Một hệ thống có ghi log đầy đủ nhưng không có cảnh báo phù hợp sẽ rất khó phát hiện và phản ứng kịp thời trước các sự cố bảo mật. Trong thực tế Pentest, nhóm này thường được đánh giá thông qua khả năng ghi nhận sự kiện đăng nhập thất bại, hành vi bất thường, truy cập trái phép và khả năng cảnh báo đến đội vận hành.</p>
+            </div>
+        </details>
+
+        <details>
+            <summary>A10:2025 - Mishandling of Exceptional Conditions</summary>
+            <div class="detail-body">
+                <span class="badge">Nhóm rủi ro mới năm 2025</span>
+                <p>A10:2025 - Mishandling of Exceptional Conditions là nhóm rủi ro mới được bổ sung trong OWASP Top 10 năm 2025.</p>
+                <p>Nhóm này bao gồm các lỗi liên quan đến việc xử lý không đúng các điều kiện bất thường hoặc tình huống ngoại lệ mà hệ thống có thể gặp phải.</p>
+                <ul>
+                    <li>Xử lý lỗi không đầy đủ.</li>
+                    <li>Logic lỗi trong chương trình.</li>
+                    <li>Cơ chế fail-open.</li>
+                    <li>Trạng thái bất thường không được kiểm soát.</li>
+                    <li>Thông báo lỗi làm lộ thông tin nhạy cảm.</li>
+                </ul>
+                <p>Các lỗi này thường không xuất hiện trong luồng hoạt động bình thường, nhưng có thể bị khai thác khi hệ thống gặp lỗi, timeout, exception hoặc các trạng thái ngoài dự kiến.</p>
+            </div>
+        </details>
+
+    </div>
+
+</div>
+
+<script>
+function createArrowMarker(svg,id,color){
+    const marker=document.createElementNS("http://www.w3.org/2000/svg","marker");
+    marker.setAttribute("id",id);
+    marker.setAttribute("markerWidth","10");
+    marker.setAttribute("markerHeight","10");
+    marker.setAttribute("refX","8");
+    marker.setAttribute("refY","3");
+    marker.setAttribute("orient","auto");
+    marker.setAttribute("markerUnits","strokeWidth");
+
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d","M0,0 L0,6 L9,3 z");
+    path.setAttribute("fill",color);
+
+    marker.appendChild(path);
+    svg.appendChild(marker);
+}
+
+function connect(fromId,toId,color,markerId,dashed=false){
+    const svg=document.getElementById("connectorSvg");
+    const lineArea=document.querySelector(".line-area");
+    const from=document.getElementById(fromId);
+    const to=document.getElementById(toId);
+
+    const svgRect=svg.getBoundingClientRect();
+    const fromRect=from.getBoundingClientRect();
+    const toRect=to.getBoundingClientRect();
+    const lineRect=lineArea.getBoundingClientRect();
+
+    const x1=0;
+    const y1=fromRect.top+fromRect.height/2-lineRect.top;
+
+    const x2=svgRect.width;
+    const y2=toRect.top+toRect.height/2-lineRect.top;
+
+    const curve=svgRect.width*.42;
+
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+
+    path.setAttribute("d",`M ${x1} ${y1} C ${curve} ${y1}, ${svgRect.width-curve} ${y2}, ${x2} ${y2}`);
+    path.setAttribute("fill","none");
+    path.setAttribute("stroke",color);
+    path.setAttribute("stroke-width","3");
+    path.setAttribute("stroke-linecap","round");
+    path.setAttribute("marker-end",`url(#${markerId})`);
+
+    if(dashed){
+        path.setAttribute("stroke-dasharray","8 7");
+    }
+
+    svg.appendChild(path);
+}
+
+function drawConnections(){
+    const svg=document.getElementById("connectorSvg");
+    svg.innerHTML="";
+
+    createArrowMarker(svg,"arrowGreen","#5ca43a");
+    createArrowMarker(svg,"arrowOrange","#f97316");
+    createArrowMarker(svg,"arrowYellow","#facc15");
+
+    connect("a01_2021","a01_2025","#5ca43a","arrowGreen");
+    connect("a02_2021","a04_2025","#f97316","arrowOrange");
+    connect("a03_2021","a05_2025","#f97316","arrowOrange");
+    connect("a04_2021","a06_2025","#f97316","arrowOrange");
+    connect("a05_2021","a02_2025","#5ca43a","arrowGreen");
+    connect("a06_2021","a03_2025","#5ca43a","arrowGreen");
+    connect("a07_2021","a07_2025","#5ca43a","arrowGreen");
+    connect("a08_2021","a08_2025","#5ca43a","arrowGreen");
+    connect("a09_2021","a09_2025","#5ca43a","arrowGreen");
+    connect("a10_2021","a01_2025","#facc15","arrowYellow",true);
+}
+
+window.addEventListener("load",drawConnections);
+window.addEventListener("resize",drawConnections);
+</script>
+
+</body>
+</html>
