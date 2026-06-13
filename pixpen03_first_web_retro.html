@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PIXPEN-03 Early Web Browser Emulator</title>
+<style>
+  :root {
+    --bg: #b8b8b8;
+    --case: #d8d1bd;
+    --case-dark: #9b927c;
+    --case-line: #4b4639;
+    --screen: #fbfaf2;
+    --ink: #111;
+    --soft: #e9e5d5;
+    --shadow: rgba(0,0,0,.28);
+    --green: #116b2d;
+    --red: #a30f16;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 50% 30%, #efefef 0%, #d8d8d8 42%, var(--bg) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    font-family: "Courier New", Courier, monospace;
+    color: var(--ink);
+  }
+
+  .wrap {
+    width: 900px;
+    max-width: 96vw;
+  }
+
+  .monitor {
+    background: linear-gradient(145deg, #ece6d4 0%, var(--case) 60%, #c4bba4 100%);
+    border: 3px solid var(--case-line);
+    border-radius: 14px;
+    padding: 18px 18px 14px;
+    box-shadow:
+      0 16px 34px var(--shadow),
+      inset 0 2px 0 rgba(255,255,255,.55);
+  }
+
+  .monitor-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #312d24;
+  }
+
+  .brand {
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+
+  .led {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .led-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #37a852;
+    border: 1px solid #114c1f;
+    box-shadow: 0 0 5px rgba(55,168,82,.65);
+  }
+
+  .bezel {
+    background: #191919;
+    border: 3px solid #050505;
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .screen {
+    width: 100%;
+    height: 660px;
+    background: var(--screen);
+    border: 2px solid #000;
+    box-shadow:
+      inset 0 0 22px rgba(0,0,0,.16),
+      inset 0 0 1px rgba(0,0,0,.85);
+    display: grid;
+    grid-template-rows: 24px 1fr 30px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,.035) 0px,
+        rgba(0,0,0,.035) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    opacity: .45;
+    mix-blend-mode: multiply;
+  }
+
+  .bar {
+    height: 24px;
+    background: var(--soft);
+    border-bottom: 1px solid #000;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    font-size: 10.5px;
+    position: relative;
+    z-index: 2;
+  }
+
+  button {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 10px;
+    border: 1px solid #000;
+    background: #fffdf4;
+    padding: 1px 5px;
+    cursor: pointer;
+    height: 18px;
+  }
+
+  button:hover, button:focus {
+    background: #111;
+    color: #fffdf4;
+    outline: none;
+  }
+
+  .url {
+    border: 1px solid #777;
+    background: #fff;
+    height: 17px;
+    line-height: 15px;
+    padding: 0 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .status {
+    color: var(--green);
+    font-weight: 700;
+    min-width: 42px;
+    text-align: right;
+  }
+
+  .status.err {
+    color: var(--red);
+  }
+
+  .viewport {
+    padding: 9px 10px 7px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 2;
+    font-size: 13px;
+    line-height: 1.38;
+    white-space: pre-wrap;
+    scrollbar-width: thin;
+  }
+
+  .docname {
+    position: absolute;
+    right: 8px;
+    top: 5px;
+    font-size: 9.5px;
+  }
+
+  h1 {
+    font-size: 11px;
+    text-align: center;
+    margin: 20px 0 14px;
+    letter-spacing: .5px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0 0 10px;
+  }
+
+  .menu {
+    width: 92%;
+    margin: 4px auto 0;
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    column-gap: 18px;
+  }
+
+  .row { display: contents; }
+
+  .left, .right {
+    padding: 5px 0;
+  }
+
+  a {
+    color: #111;
+    text-decoration: none;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  a:hover, a:focus {
+    color: #fff;
+    background: #111;
+    outline: none;
+  }
+
+  .hint {
+    margin-top: 8px;
+    border: 1px dashed #222;
+    background: #fffdf8;
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+
+  .prompt {
+    background: var(--soft);
+    border-top: 1px solid #000;
+    display: grid;
+    grid-template-columns: 1fr 82px 30px;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 6px;
+    font-size: 13px;
+    position: relative;
+    z-index: 2;
+  }
+
+  input {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 10px;
+    border: 1px solid #000;
+    height: 20px;
+    padding: 1px 5px;
+    background: #fff;
+  }
+
+  .copyright {
+    text-align: center;
+    margin-top: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #222;
+  }
+
+  .caption {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: #333;
+  }
+
+  @media (max-width: 700px) {
+    .wrap { width: 96vw; }
+    .monitor { padding: 12px; }
+    .screen { height: 390px; }
+    .viewport { font-size: 9.6px; line-height: 1.32; }
+    .menu { grid-template-columns: 1fr; width: 100%; }
+    .left { padding-bottom: 0; }
+    .right { padding-top: 0; padding-left: 16px; }
+    .prompt { grid-template-columns: 1fr; height: auto; }
+    button { height: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <main class="monitor" aria-label="Early computer monitor with a line-mode web browser">
+    <div class="monitor-top">
+      <div class="brand">W3 TERMINAL DISPLAY POWER BY SHIINA FROM PIXEL</div>
+      <div class="led"><span class="led-dot"></span><span>ONLINE</span></div>
+    </div>
+
+    <div class="bezel">
+      <section class="screen">
+        <div class="bar">
+          <div>
+            <button id="backBtn" type="button">Back</button>
+            <button id="homeBtn" type="button">Home</button>
+          </div>
+          <div class="url" id="urlBox"></div>
+          <div class="status" id="statusBox">READY</div>
+        </div>
+
+        <article class="viewport" id="viewport" tabindex="0"></article>
+
+        <div class="prompt">
+          <span>&lt;ref.number&gt;, Back, Home, or Help:</span>
+          <input id="command" autocomplete="off" aria-label="Reference number or command">
+          <button id="goBtn" type="button">Go</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="caption">Type a visible reference number such as 7, 10, 11, 19, 22, or 24.</div>
+  <div class="copyright">© 2026 Shiina · Pixel Academy · PIXPEN-03</div>
+</div>
+
+<script>
+"use strict";
+
+const pages = {
+  home: {
+    title: "The World Wide Web project",
+    url: "https://info.cern.ch/hypertext/WWW/TheProject.html",
+    heading: "WORLD WIDE WEB",
+    body: [
+      "The WorldWideWeb (W3) is a wide-area hypermedia[1] information retrieval initiative aiming to give universal access to a large universe of documents.",
+      "Everything there is online about W3 is linked directly or indirectly to this document, including an executive summary[2] of the project, Mailing lists[3], Policy[4], November's W3 news[5], Frequently Asked Questions[6]."
+    ],
+    links: [
+      {ref:"7",  text:"What's out there?[7]", desc:"Pointers to the world's online information, subjects[8], W3 servers[9], etc.", target:"outthere"},
+      {ref:"10", text:"Help[10]", desc:"on the browser you are using", target:"help"},
+      {ref:"11", text:"Software Products[11]", desc:"A list of W3 project components and their current state. e.g. Line Mode[12], X11 Viola[13], NeXTStep[14], Servers[15], Tools[16], Mail robot[17], Library[18]", target:"software"},
+      {ref:"19", text:"Technical[19]", desc:"Details of protocols, formats, program internals etc.", target:"technical"},
+      {ref:"20", text:"Bibliography[20]", desc:"Paper documentation on W3 and references.", target:"bibliography"},
+      {ref:"21", text:"People[21]", desc:"People involved in the project.", target:"people"},
+      {ref:"22", text:"History[22]", desc:"A short history of the project.", target:"history"},
+      {ref:"23", text:"How can I help?[23]", desc:"How to support the web project.", target:"helpout"},
+      {ref:"24", text:"Getting code[24]", desc:"Getting the code by anonymous FTP[25], etc.", target:"code"}
+    ]
+  },
+
+  outthere: {
+    title: "What's out there?",
+    url: "https://info.cern.ch/hypertext/DataSources/Top.html",
+    heading: "WHAT'S OUT THERE?",
+    body: [
+      "This page represents browsing by following references rather than typing search queries.",
+      "In early Web browsing, links were often shown with numbers. A reader selected a link by entering its number."
+    ],
+    links: [
+      {ref:"8", text:"Subjects[8]", desc:"Information organized by topic.", target:"subjects"},
+      {ref:"9", text:"W3 servers[9]", desc:"A list of servers known to the W3 project.", target:"servers"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main World Wide Web project page.", target:"home"}
+    ]
+  },
+
+  subjects: {
+    title: "Subjects",
+    url: "https://info.cern.ch/hypertext/DataSources/bySubject/Overview.html",
+    heading: "SUBJECTS",
+    body: [
+      "A subject-oriented list lets a reader browse information by category.",
+      "This was one of the earliest ideas behind using the Web as a universal information space."
+    ],
+    links: [
+      {ref:"1", text:"Computing[1]", desc:"Computer science, protocols, software, and networks.", target:"computing"},
+      {ref:"2", text:"Science[2]", desc:"Scientific information and research material.", target:"science"},
+      {ref:"7", text:"Back to What's out there?[7]", desc:"Return to the previous topic list.", target:"outthere"}
+    ]
+  },
+
+  servers: {
+    title: "W3 servers",
+    url: "https://info.cern.ch/hypertext/DataSources/WWW/Servers.html",
+    heading: "W3 SERVERS",
+    body: [
+      "This page simulates a list of early Web servers.",
+      "Before modern search engines, curated server lists and hyperlink chains were important discovery tools."
+    ],
+    links: [
+      {ref:"1", text:"CERN server[1]", desc:"The original CERN web server.", target:"cernserver"},
+      {ref:"2", text:"Research server[2]", desc:"A simulated research information server.", target:"researchserver"},
+      {ref:"7", text:"Back[7]", desc:"Return to What's out there.", target:"outthere"}
+    ]
+  },
+
+  help: {
+    title: "Browser help",
+    url: "https://info.cern.ch/hypertext/WWW/LineMode/Defaults/QuickGuide.html",
+    heading: "HELP",
+    body: [
+      "This emulator behaves like a simplified line-mode browser.",
+      "To follow a link, enter the number shown in brackets.",
+      "Commands you can type: a reference number, Back, Home, or Help."
+    ],
+    links: [
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  software: {
+    title: "Software Products",
+    url: "https://info.cern.ch/hypertext/WWW/Status.html",
+    heading: "SOFTWARE PRODUCTS",
+    body: [
+      "The early Web needed browsers, servers, tools, libraries, and documentation.",
+      "Some browsers were text-based. Others introduced graphical browsing."
+    ],
+    links: [
+      {ref:"12", text:"Line Mode[12]", desc:"A portable text-based browser.", target:"linemode"},
+      {ref:"13", text:"X11 Viola[13]", desc:"An early graphical browser for X Window systems.", target:"viola"},
+      {ref:"14", text:"NeXTStep[14]", desc:"The original WorldWideWeb browser/editor environment.", target:"nextstep"},
+      {ref:"15", text:"Servers[15]", desc:"Software used to serve web documents.", target:"serversoftware"},
+      {ref:"16", text:"Tools[16]", desc:"Utility tools for working with W3.", target:"tools"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  linemode: {
+    title: "Line Mode Browser",
+    url: "https://info.cern.ch/hypertext/WWW/LineMode/Browser.html",
+    heading: "LINE MODE BROWSER",
+    body: [
+      "The line mode browser made the Web usable on terminals.",
+      "Instead of clicking links, the user selected numbered references."
+    ],
+    links: [
+      {ref:"11", text:"Software Products[11]", desc:"Return to Software Products.", target:"software"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  viola: {
+    title: "Viola",
+    url: "https://info.cern.ch/hypertext/WWW/Viola/Overview.html",
+    heading: "X11 VIOLA",
+    body: [
+      "Viola was an early graphical browser for the X Window System.",
+      "It helped move the Web beyond purely text-based navigation."
+    ],
+    links: [
+      {ref:"11", text:"Software Products[11]", desc:"Return to Software Products.", target:"software"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  nextstep: {
+    title: "NeXTStep",
+    url: "https://info.cern.ch/hypertext/WWW/NeXT/WorldWideWeb.html",
+    heading: "NEXTSTEP BROWSER",
+    body: [
+      "The original WorldWideWeb application on NeXTStep was both a browser and an editor.",
+      "The Web was imagined not only for reading, but also for creating and linking information."
+    ],
+    links: [
+      {ref:"11", text:"Software Products[11]", desc:"Return to Software Products.", target:"software"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  serversoftware: {
+    title: "Servers",
+    url: "https://info.cern.ch/hypertext/WWW/Daemon/Overview.html",
+    heading: "SERVERS",
+    body: [
+      "A web server delivered documents to clients over HTTP.",
+      "In the earliest model, a server was mainly a public document repository."
+    ],
+    links: [
+      {ref:"19", text:"Technical[19]", desc:"See protocols and server internals.", target:"technical"},
+      {ref:"11", text:"Software Products[11]", desc:"Return to Software Products.", target:"software"}
+    ]
+  },
+
+  tools: {
+    title: "Tools",
+    url: "https://info.cern.ch/hypertext/WWW/Tools/Overview.html",
+    heading: "TOOLS",
+    body: [
+      "Tools supported indexing, conversion, mail integration, and other project tasks.",
+      "The early Web ecosystem grew from many small components working together."
+    ],
+    links: [
+      {ref:"11", text:"Software Products[11]", desc:"Return to Software Products.", target:"software"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  technical: {
+    title: "Technical",
+    url: "https://info.cern.ch/hypertext/WWW/Technical.html",
+    heading: "TECHNICAL",
+    body: [
+      "Technical details included protocols, formats, and program internals.",
+      "HTML describes content. HTTP transfers it."
+    ],
+    links: [
+      {ref:"1", text:"HTTP[1]", desc:"The protocol used to transfer hypertext documents.", target:"http"},
+      {ref:"2", text:"HTML[2]", desc:"The markup format used for web documents.", target:"html"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  http: {
+    title: "HTTP",
+    url: "https://info.cern.ch/hypertext/WWW/Protocols/HTTP/AsImplemented.html",
+    heading: "HTTP",
+    body: [
+      "Early HTTP was extremely small compared to modern HTTP.",
+      "A very early request could be as simple as: GET /example.txt followed by CRLF.",
+      "Later versions added version numbers, headers, status codes, content types, and support for more methods."
+    ],
+    links: [
+      {ref:"9", text:"HTTP/0.9 style[9]", desc:"A minimal GET-only request model.", target:"http09"},
+      {ref:"10", text:"HTTP/1.0 style[10]", desc:"Versioned requests and richer responses.", target:"http10"},
+      {ref:"19", text:"Technical[19]", desc:"Return to Technical.", target:"technical"}
+    ]
+  },
+
+  http09: {
+    title: "HTTP/0.9 style",
+    url: "https://info.cern.ch/hypertext/WWW/Protocols/HTTP/AsImplemented.html",
+    heading: "HTTP/0.9 STYLE",
+    body: [
+      "A minimal request looked like this:",
+      "GET /example.txt",
+      "No Host header. No Cookie header. No Content-Type request header. No virtual host support like modern HTTP/1.1."
+    ],
+    links: [
+      {ref:"10", text:"HTTP/1.0 comparison[10]", desc:"See what changed in HTTP/1.0.", target:"http10"},
+      {ref:"1", text:"HTTP[1]", desc:"Return to HTTP overview.", target:"http"}
+    ]
+  },
+
+  http10: {
+    title: "HTTP/1.0 style",
+    url: "https://www.rfc-editor.org/rfc/rfc1945",
+    heading: "HTTP/1.0 STYLE",
+    body: [
+      "HTTP/1.0 introduced a more recognizable request style:",
+      "GET / HTTP/1.0",
+      "It supported more headers and more methods. Responses could include images, text, binary files, and more."
+    ],
+    links: [
+      {ref:"1", text:"HTTP[1]", desc:"Return to HTTP overview.", target:"http"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  html: {
+    title: "HTML",
+    url: "https://info.cern.ch/hypertext/WWW/MarkUp/MarkUp.html",
+    heading: "HTML",
+    body: [
+      "HTML provided a way to write documents containing links.",
+      "This simple idea made the Web navigable: documents could point to other documents."
+    ],
+    links: [
+      {ref:"19", text:"Technical[19]", desc:"Return to Technical.", target:"technical"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  bibliography: {
+    title: "Bibliography",
+    url: "https://info.cern.ch/hypertext/WWW/Bibliography.html",
+    heading: "BIBLIOGRAPHY",
+    body: [
+      "References and papers documented the ideas behind W3.",
+      "The early Web was built in a research context, so documentation and linking papers mattered."
+    ],
+    links: [
+      {ref:"22", text:"History[22]", desc:"Read a short project history.", target:"history"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  people: {
+    title: "People",
+    url: "https://info.cern.ch/hypertext/WWW/People.html",
+    heading: "PEOPLE",
+    body: [
+      "The Web was built by people solving practical information-sharing problems.",
+      "Tim Berners-Lee and collaborators at CERN are central to this history."
+    ],
+    links: [
+      {ref:"22", text:"History[22]", desc:"A summary of the project history.", target:"history"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  history: {
+    title: "History",
+    url: "https://info.cern.ch/hypertext/WWW/History.html",
+    heading: "HISTORY",
+    body: [
+      "The Web began as a proposal for organizing and linking information.",
+      "By 1991, it began to be used outside CERN, and HTTP became the protocol that transferred web content."
+    ],
+    links: [
+      {ref:"19", text:"Technical[19]", desc:"See protocols and formats.", target:"technical"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  helpout: {
+    title: "How can I help?",
+    url: "https://info.cern.ch/hypertext/WWW/Helping.html",
+    heading: "HOW CAN I HELP?",
+    body: [
+      "The early Web grew through participation: writing documents, running servers, improving tools, and linking information.",
+      "The Web was not only a publishing system; it was a shared information space."
+    ],
+    links: [
+      {ref:"24", text:"Getting code[24]", desc:"Find out how code could be obtained.", target:"code"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  code: {
+    title: "Getting code",
+    url: "https://info.cern.ch/hypertext/WWW/GettingTheCode.html",
+    heading: "GETTING CODE",
+    body: [
+      "In the early Web era, code and documents could be obtained through anonymous FTP and other simple distribution methods.",
+      "This reflects the research-oriented and open nature of the early Web."
+    ],
+    links: [
+      {ref:"25", text:"Anonymous FTP[25]", desc:"A common way to obtain files before the Web became dominant.", target:"ftp"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  ftp: {
+    title: "Anonymous FTP",
+    url: "ftp://info.cern.ch/",
+    heading: "ANONYMOUS FTP",
+    body: [
+      "Anonymous FTP allowed public file retrieval without individual user accounts.",
+      "This is why the early Web is sometimes described as similar to an anonymous FTP server with hyperlinks."
+    ],
+    links: [
+      {ref:"24", text:"Getting code[24]", desc:"Return to Getting code.", target:"code"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  computing: {
+    title: "Computing",
+    url: "https://info.cern.ch/hypertext/DataSources/bySubject/Computing.html",
+    heading: "COMPUTING",
+    body: [
+      "A simulated subject page for computing resources.",
+      "Early browsing often felt like moving through hand-maintained indexes rather than searching a global search engine."
+    ],
+    links: [
+      {ref:"8", text:"Subjects[8]", desc:"Return to Subjects.", target:"subjects"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  science: {
+    title: "Science",
+    url: "https://info.cern.ch/hypertext/DataSources/bySubject/Science.html",
+    heading: "SCIENCE",
+    body: [
+      "A simulated subject page for science resources.",
+      "The Web was designed to make linked research information easier to publish and retrieve."
+    ],
+    links: [
+      {ref:"8", text:"Subjects[8]", desc:"Return to Subjects.", target:"subjects"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  cernserver: {
+    title: "CERN server",
+    url: "https://info.cern.ch/",
+    heading: "CERN SERVER",
+    body: [
+      "The CERN server represents the origin point for this demonstration.",
+      "This emulator keeps pages local, but the URL bar shows the historical style of navigation."
+    ],
+    links: [
+      {ref:"9", text:"W3 servers[9]", desc:"Return to W3 servers.", target:"servers"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  },
+
+  researchserver: {
+    title: "Research server",
+    url: "https://example-research.invalid/",
+    heading: "RESEARCH SERVER",
+    body: [
+      "A simulated research server page.",
+      "Before modern search engines, curated server lists and hyperlink chains were essential for discovery."
+    ],
+    links: [
+      {ref:"9", text:"W3 servers[9]", desc:"Return to W3 servers.", target:"servers"},
+      {ref:"0", text:"Home[0]", desc:"Return to the main page.", target:"home"}
+    ]
+  }
+};
+
+let current = "home";
+let backStack = [];
+
+const viewport = document.getElementById("viewport");
+const urlBox = document.getElementById("urlBox");
+const statusBox = document.getElementById("statusBox");
+const command = document.getElementById("command");
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  }[ch]));
+}
+
+function setStatus(text, error=false) {
+  statusBox.textContent = text;
+  statusBox.className = error ? "status err" : "status";
+}
+
+function render(id, push=true) {
+  const page = pages[id];
+  if (!page) {
+    setStatus("BAD REF", true);
+    return;
+  }
+
+  if (push && current !== id) backStack.push(current);
+  current = id;
+  urlBox.textContent = page.url;
+  setStatus("READY", false);
+
+  let out = `<div class="docname">${esc(page.title)}</div>`;
+  out += `<h1>${esc(page.heading)}</h1>`;
+
+  for (const p of page.body) {
+    out += `<p>${esc(p)}</p>`;
+  }
+
+  out += `<div class="menu">`;
+  for (const link of page.links) {
+    out += `
+      <div class="row">
+        <div class="left"><a href="#" data-target="${esc(link.target)}" data-ref="${esc(link.ref)}">${esc(link.text)}</a></div>
+        <div class="right">${esc(link.desc)}</div>
+      </div>`;
+  }
+  out += `</div>`;
+
+  const refs = page.links.map(l => l.ref).join(", ");
+  out += `<div class="hint">Available refs: ${esc(refs)}. Type a ref number, Back, Home, or Help.</div>`;
+
+  viewport.innerHTML = out;
+  viewport.scrollTop = 0;
+
+  viewport.querySelectorAll("a[data-target]").forEach(a => {
+    a.addEventListener("click", ev => {
+      ev.preventDefault();
+      render(a.getAttribute("data-target"));
+    });
+  });
+}
+
+function goBack() {
+  if (!backStack.length) {
+    setStatus("NO BACK", true);
+    return;
+  }
+  const last = backStack.pop();
+  render(last, false);
+}
+
+function runCommand(value) {
+  const v = String(value).trim();
+  const page = pages[current];
+
+  if (!v) {
+    setStatus("RETURN");
+    return;
+  }
+
+  const low = v.toLowerCase();
+  if (low === "back" || low === "b") {
+    goBack();
+    return;
+  }
+  if (low === "home" || low === "h" || v === "0") {
+    render("home");
+    return;
+  }
+  if (low === "help" || low === "?") {
+    render("help");
+    return;
+  }
+
+  const target = page.links.find(l => l.ref === v);
+  if (target) {
+    render(target.target);
+    return;
+  }
+
+  setStatus("BAD REF", true);
+}
+
+document.getElementById("goBtn").addEventListener("click", () => {
+  runCommand(command.value);
+  command.value = "";
+  command.focus();
+});
+
+command.addEventListener("keydown", (ev) => {
+  if (ev.key === "Enter") {
+    ev.preventDefault();
+    runCommand(command.value);
+    command.value = "";
+  }
+});
+
+document.getElementById("backBtn").addEventListener("click", goBack);
+document.getElementById("homeBtn").addEventListener("click", () => render("home"));
+document.addEventListener("keydown", ev => {
+  if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+  if (ev.key === "Escape") command.focus();
+});
+
+render("home", false);
+command.focus();
+
+/* Simple built-in sanity check for navigation mapping. */
+(function selfTest() {
+  const homeRefs = new Set(pages.home.links.map(l => l.ref));
+  if (!homeRefs.has("7") || !homeRefs.has("10") || !homeRefs.has("11") || !homeRefs.has("19")) {
+    console.error("Reference mapping self-test failed.");
+  }
+})();
+</script>
+</body>
+</html>
